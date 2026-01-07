@@ -1,0 +1,70 @@
+# Self-driving network automation: monitoring, anomaly detection, and auto-adjustment
+# -----------------------------------------------------------
+# Tujuan:
+# - Memantau trafik jaringan (simulasi)
+# - Mendeteksi lonjakan/anomali secara real-time (threshold dinamis)
+# - Menerapkan tindakan otomatis: tambah bandwidth / reroute trafik
+# -----------------------------------------------------------
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# (Opsional) set style agar visual lebih nyaman
+plt.style.use('seaborn-v0_8')
+
+# 1) Simulasi data trafik (Mbps) selama 60 menit
+#    - normal_traffic: rata-rata 100 Mbps, variasi kecil
+#    - spike_traffic: lonjakan acak sebagai anomali
+np.random.seed(42)
+time = pd.date_range(start='2026-01-07 08:00', periods=60, freq='T')  # 60 menit
+normal_traffic = np.random.normal(loc=100, scale=10, size=60)         # trafik normal ~100 Mbps
+anomalies_flag = np.random.choice([0, 1], size=60, p=[0.9, 0.1])      # 10% peluang lonjakan
+spike_traffic = anomalies_flag * np.random.normal(loc=200, scale=30, size=60)
+traffic = normal_traffic + spike_traffic
+
+# 2) Bangun DataFrame untuk monitoring
+df = pd.DataFrame({'Time': time, 'Traffic_Mbps': traffic})
+df.set_index('Time', inplace=True)
+
+# 3) Tentukan ambang anomali (threshold) berbasis statistik dinamis
+#    - mean + 2*std: sederhana namun cukup efektif sebagai baseline
+threshold = df['Traffic_Mbps'].mean() + 2 * df['Traffic_Mbps'].std()
+
+# 4) Deteksi anomali: tandai titik yang melampaui ambang
+df['Anomaly'] = df['Traffic_Mbps'] > threshold
+
+# 5) Tindakan otomatis (closed-loop):
+#    - Jika anomali: tingkatkan bandwidth atau reroute trafik
+#    - Jika normal: tidak ada tindakan
+df['Action'] = np.where(
+    df['Anomaly'],
+    'Increase bandwidth / reroute traffic',
+    'No action'
+)
+
+# 6) Visualisasi: garis trafik, garis threshold, dan titik anomali
+plt.figure(figsize=(12, 6))
+plt.plot(df.index, df['Traffic_Mbps'], label='Traffic (Mbps)', color='blue')
+plt.axhline(y=threshold, color='red', linestyle='--', label='Anomaly Threshold')
+plt.scatter(df[df['Anomaly']].index, df[df['Anomaly']]['Traffic_Mbps'],
+            color='orange', label='Anomaly', zorder=5)
+plt.title('Self-Driving Network: Traffic Monitoring & Anomaly Detection')
+plt.xlabel('Time')
+plt.ylabel('Traffic (Mbps)')
+plt.legend()
+plt.tight_layout()
+plt.xticks(rotation=45)
+
+# 7) Simpan artefak: grafik dan log tindakan
+#    - Grafik: tren trafik dan anomali
+#    - CSV: tabel hasil monitoring + tindakan otomatis
+plt.savefig('network_traffic_monitoring.png')
+df[['Traffic_Mbps', 'Anomaly', 'Action']].to_csv('network_automation_log.csv')
+
+# 8) Tampilkan ringkasan ke konsol
+print('Self-driving network automation berjalan:')
+print(f'- Threshold dinamis: {threshold:.2f} Mbps')
+print(f'- Jumlah anomali terdeteksi: {df["Anomaly"].sum()}')
+print('Contoh baris log:')
+print(df[['Traffic_Mbps', 'Anomaly', 'Action']].head(10))
