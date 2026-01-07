@@ -1,0 +1,39 @@
+# -----------------------------------------------------------
+# Real-time Anomaly and Threat Detection (Simulasi)
+# -----------------------------------------------------------
+# Tujuan:
+# - Memantau trafik jaringan secara real-time (simulasi data)
+# - Mendeteksi anomali berbasis threshold dinamis
+# - Mengklasifikasikan apakah anomali berpotensi ancaman
+# -----------------------------------------------------------
+
+import numpy as np
+import pandas as pd
+import time
+
+# 1) Simulasi data trafik (Mbps)
+np.random.seed(42)
+traffic_data = np.random.normal(loc=100, scale=15, size=50)  # trafik normal
+# Tambahkan beberapa lonjakan besar (simulasi serangan DDoS)
+traffic_data[10] = 300
+traffic_data[25] = 280
+traffic_data[40] = 350
+
+# 2) Threshold dinamis: mean + 2*std
+threshold = traffic_data.mean() + 2 * traffic_data.std()
+
+# 3) Fungsi klasifikasi ancaman
+def classify_threat(value, threshold):
+    if value > threshold * 2:   # jika jauh di atas threshold
+        return "Critical Threat (Possible DDoS)"
+    elif value > threshold:
+        return "Suspicious Activity"
+    else:
+        return "Normal"
+
+# 4) Monitoring real-time (simulasi loop)
+print("=== Real-time Anomaly & Threat Detection ===")
+for i, traffic in enumerate(traffic_data):
+    status = classify_threat(traffic, threshold)
+    print(f"[{i:02d}] Traffic: {traffic:.2f} Mbps | Status: {status}")
+    time.sleep(0.2)  # simulasi delay real-time
