@@ -1,0 +1,47 @@
+# -----------------------------------------------------------
+# Detailed Root Cause Analysis (RCA) dalam Python
+# -----------------------------------------------------------
+# Studi kasus: Server sering down
+# Metode: 5 Whys + Fishbone Diagram sederhana
+# -----------------------------------------------------------
+
+# 1) Implementasi metode 5 Whys
+def five_whys(problem, causes):
+    print("=== 5 Whys Analysis ===")
+    print(f"Problem: {problem}")
+    for i, cause in enumerate(causes, start=1):
+        print(f"Why {i}? {cause}")
+
+# Contoh analisis 5 Whys
+problem = "Server sering down"
+causes = [
+    "Karena CPU sering overload",
+    "Mengapa CPU overload? Karena trafik meningkat drastis",
+    "Mengapa trafik meningkat? Karena tidak ada load balancing",
+    "Mengapa tidak ada load balancing? Karena konfigurasi belum diimplementasikan",
+    "Mengapa konfigurasi belum diimplementasikan? Karena tim belum punya SOP jelas"
+]
+
+five_whys(problem, causes)
+
+
+# 2) Fishbone Diagram sederhana (Ishikawa)
+fishbone = {
+    "Manusia": ["Kurang pelatihan admin", "Tidak ada SOP"],
+    "Mesin": ["Server kapasitas rendah", "Pendingin tidak optimal"],
+    "Metode": ["Tidak ada load balancing", "Monitoring manual"],
+    "Material": ["Hardware lama", "Tidak ada spare part"],
+    "Lingkungan": ["Ruangan panas", "Listrik tidak stabil"]
+}
+
+print("\n=== Fishbone Diagram (Kategori Penyebab) ===")
+for category, items in fishbone.items():
+    print(f"{category}:")
+    for item in items:
+        print(f"  - {item}")
+
+
+# 3) Kesimpulan RCA
+print("\n=== Kesimpulan RCA ===")
+print("Akar masalah utama: Tidak adanya SOP dan load balancing, ditambah kapasitas server terbatas.")
+print("Solusi permanen: Buat SOP jelas, implementasi load balancing, upgrade server, dan perbaikan lingkungan.")
